@@ -30,7 +30,7 @@ ExecutorState:
       items:
         type: integer
         format: int32
-    startMs:
+    taskStartMs:
       type: string
     # leadership information
     numTotalLeadershipMovements:

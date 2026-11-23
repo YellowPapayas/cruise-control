@@ -117,7 +117,7 @@ public class Executor {
   private volatile ExecutorState _executorState;
   private volatile String _uuid;
   private volatile Supplier<String> _reasonSupplier;
-  private volatile long _startMs;
+  private volatile long _taskStartMs;
   private final ExecutorNotifier _executorNotifier;
 
   private final AtomicInteger _numExecutionStopped;
@@ -875,7 +875,7 @@ public class Executor {
                                                   boolean isTriggeredByUserRequest,
                                                   LoadMonitor loadMonitor) {
     _executorState = ExecutorState.initializeProposalExecution(_uuid, _reasonSupplier.get(), recentlyDemotedBrokers(),
-                                                               recentlyRemovedBrokers(), isTriggeredByUserRequest, _startMs);
+                                                               recentlyRemovedBrokers(), isTriggeredByUserRequest, _taskStartMs);
     _executionTaskManager.setExecutionModeForTaskTracker(_isKafkaAssignerMode);
     // Get a snapshot of (1) cluster and (2) minIsr with time by topic name.
     StrategyOptions strategyOptions = new StrategyOptions.Builder(_metadataClient.cluster())
@@ -1107,9 +1107,9 @@ public class Executor {
 
     _uuid = validateNotNull(uuid, "UUID of the execution cannot be null.");
     _reasonSupplier = validateNotNull(reasonSupplier, "Reason supplier cannot be null.");
-    _startMs = _time.milliseconds();
+    _taskStartMs = _time.milliseconds();
     _executorState = ExecutorState.generatingProposalsForExecution(_uuid, _reasonSupplier.get(), recentlyDemotedBrokers(),
-                                                                   recentlyRemovedBrokers(), isTriggeredByUserRequest, _startMs);
+                                                                   recentlyRemovedBrokers(), isTriggeredByUserRequest, _taskStartMs);
   }
 
   /**
@@ -1399,7 +1399,7 @@ public class Executor {
       }
       String reason = _reasonSupplier.get();
       _executorState = ExecutorState.executionStarting(_uuid, reason, _recentlyDemotedBrokers, _recentlyRemovedBrokers,
-                                                       _isTriggeredByUserRequest, _startMs);
+                                                       _isTriggeredByUserRequest, _taskStartMs);
       OPERATION_LOG.info("Task [{}] execution starts. The reason of execution is {}.", _uuid, reason);
       _ongoingExecutionIsBeingModified.set(false);
       return userTaskInfo;
@@ -1459,7 +1459,7 @@ public class Executor {
                                                              _recentlyDemotedBrokers,
                                                              _recentlyRemovedBrokers,
                                                              _isTriggeredByUserRequest,
-                                                             _startMs);
+                                                             _taskStartMs);
           interBrokerMoveReplicas();
           updateOngoingExecutionState();
         }
@@ -1476,7 +1476,7 @@ public class Executor {
                                                              _recentlyDemotedBrokers,
                                                              _recentlyRemovedBrokers,
                                                              _isTriggeredByUserRequest,
-                                                             _startMs);
+                                                             _taskStartMs);
           intraBrokerMoveReplicas();
           updateOngoingExecutionState();
         }
@@ -1493,7 +1493,7 @@ public class Executor {
                                                              _recentlyDemotedBrokers,
                                                              _recentlyRemovedBrokers,
                                                              _isTriggeredByUserRequest,
-                                                             _startMs);
+                                                             _taskStartMs);
           moveLeaderships();
           updateOngoingExecutionState();
         }
@@ -1567,7 +1567,7 @@ public class Executor {
                                                                _recentlyDemotedBrokers,
                                                                _recentlyRemovedBrokers,
                                                                _isTriggeredByUserRequest,
-                                                               _startMs);
+                                                               _taskStartMs);
             break;
           case INTER_BROKER_REPLICA_MOVEMENT_TASK_IN_PROGRESS:
             _executorState = ExecutorState.operationInProgress(INTER_BROKER_REPLICA_MOVEMENT_TASK_IN_PROGRESS,
@@ -1580,7 +1580,7 @@ public class Executor {
                                                                _recentlyDemotedBrokers,
                                                                _recentlyRemovedBrokers,
                                                                _isTriggeredByUserRequest,
-                                                               _startMs);
+                                                               _taskStartMs);
             break;
           case INTRA_BROKER_REPLICA_MOVEMENT_TASK_IN_PROGRESS:
             _executorState = ExecutorState.operationInProgress(INTRA_BROKER_REPLICA_MOVEMENT_TASK_IN_PROGRESS,
@@ -1593,7 +1593,7 @@ public class Executor {
                                                                _recentlyDemotedBrokers,
                                                                _recentlyRemovedBrokers,
                                                                _isTriggeredByUserRequest,
-                                                               _startMs);
+                                                               _taskStartMs);
             break;
           default:
             throw new IllegalStateException("Unexpected ongoing execution state " + _executorState.state());
@@ -1609,7 +1609,7 @@ public class Executor {
                                                            _recentlyDemotedBrokers,
                                                            _recentlyRemovedBrokers,
                                                            _isTriggeredByUserRequest,
-                                                           _startMs);
+                                                           _taskStartMs);
       }
     }
 
