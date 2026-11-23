@@ -568,22 +568,22 @@ public class ExecutorTest extends CCKafkaClientsIntegrationTestHarness {
                                     null, EasyMock.mock(MetadataAdminClient.class), null,
                                     EasyMock.mock(AnomalyDetectorManager.class));
     // Check time is not set when no task in progress
-    assertEquals(0L, executor.state().startMs());
+    assertNull(getStartMs(executor.state()));
 
     // Check time is set to current time once a execution starts
     executor.setGeneratingProposalsForExecution(RANDOM_UUID, () -> "reason", false);
-    long firstStartMs = executor.state().startMs();
-    assertEquals(time.milliseconds(), firstStartMs);
+    long firstStartMs = time.milliseconds();
+    assertEquals(Long.valueOf(firstStartMs), getStartMs(executor.state()));
 
     // Reset back to no task in progress, check time is not set
     executor.failGeneratingProposalsForExecution(RANDOM_UUID);
-    assertEquals(0L, executor.state().startMs());
+    assertNull(getStartMs(executor.state()));
 
     // Check time updates when starting a new execution
     long clockAdvanceMs = 10_000L;
     time.sleep(clockAdvanceMs);
     executor.setGeneratingProposalsForExecution(RANDOM_UUID, () -> "reason", false);
-    assertEquals(firstStartMs + clockAdvanceMs, executor.state().startMs());
+    assertEquals(Long.valueOf(firstStartMs + clockAdvanceMs), getStartMs(executor.state()));
   }
 
   @Test
@@ -621,8 +621,8 @@ public class ExecutorTest extends CCKafkaClientsIntegrationTestHarness {
 
     // Same check as in previous test, make sure time is initialized properly
     executor.setGeneratingProposalsForExecution(RANDOM_UUID, () -> "reason", false);
-    long firstStartMs = executor.state().startMs();
-    assertEquals(time.milliseconds(), firstStartMs);
+    long firstStartMs = time.milliseconds();
+    assertEquals(Long.valueOf(firstStartMs), getStartMs(executor.state()));
 
     // Advance clock and move to next state
     time.sleep(10_000L);
@@ -645,16 +645,25 @@ public class ExecutorTest extends CCKafkaClientsIntegrationTestHarness {
                   "Leader movement task did not start within the time limit",
                   EXECUTION_DEADLINE_MS, EXECUTION_SHORT_CHECK_MS);
     // Check that the state's startMs has not changed
-    assertEquals(firstStartMs, executor.state().startMs());
+    assertEquals(Long.valueOf(firstStartMs), getStartMs(executor.state()));
     // Also check that startMs is consistent when no state transitions occur
     time.sleep(10_000L);
-    assertEquals(firstStartMs, executor.state().startMs());
+    assertEquals(Long.valueOf(firstStartMs), getStartMs(executor.state()));
 
     executor.userTriggeredStopExecution(false);
     waitUntilTrue(() -> (!executor.hasOngoingExecution() && executor.state().state() == ExecutorState.State.NO_TASK_IN_PROGRESS),
                   "Proposal execution did not finish within the time limit",
                   EXECUTION_DEADLINE_MS, EXECUTION_REGULAR_CHECK_MS);
     EasyMock.verify(mockMetadataClient, mockLoadMonitor, mockAnomalyDetectorManager, mockUserTaskInfo, mockUserTaskManager);
+  }
+
+  private static Long getStartMs(ExecutorState state) {
+    String value = (String) state.getJsonStructure(false).get("startMs");
+    if (value == null) {
+      return null;
+    } else {
+      return Long.parseLong(value);
+    }
   }
 
   /**
