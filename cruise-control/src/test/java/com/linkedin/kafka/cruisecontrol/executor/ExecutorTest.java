@@ -658,11 +658,11 @@ public class ExecutorTest extends CCKafkaClientsIntegrationTestHarness {
   }
 
   private static Long getStartMs(ExecutorState state) {
-    String value = (String) state.getJsonStructure(false).get("taskStartMs");
+    Number value = (Number) state.getJsonStructure(false).get("taskStartMs");
     if (value == null) {
       return null;
     } else {
-      return Long.parseLong(value);
+      return value.longValue();
     }
   }
 

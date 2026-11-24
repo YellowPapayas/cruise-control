@@ -407,12 +407,12 @@ public final class ExecutorState {
       case GENERATING_PROPOSALS_FOR_EXECUTION:
         populateUuidFieldInJsonStructure(execState, _uuid);
         execState.put(TRIGGERED_TASK_REASON, _reason);
-        execState.put(TASK_START_MS, Long.toString(_taskStartMs));
+        execState.put(TASK_START_MS, _taskStartMs);
         break;
       case LEADER_MOVEMENT_TASK_IN_PROGRESS:
         populateUuidFieldInJsonStructure(execState, _uuid);
         execState.put(TRIGGERED_TASK_REASON, _reason);
-        execState.put(TASK_START_MS, Long.toString(_taskStartMs));
+        execState.put(TASK_START_MS, _taskStartMs);
         execState.put(MAXIMUM_BROKER_LEADER_MOVEMENT_CONCURRENCY, _executionConcurrencySummary.getMaxExecutionConcurrency(
             ConcurrencyType.LEADERSHIP_BROKER));
         execState.put(MINIMUM_BROKER_LEADER_MOVEMENT_CONCURRENCY,
@@ -431,7 +431,7 @@ public final class ExecutorState {
         interBrokerPartitionMovementStats = _executionTasksSummary.taskStat().get(INTER_BROKER_REPLICA_ACTION);
         populateUuidFieldInJsonStructure(execState, _uuid);
         execState.put(TRIGGERED_TASK_REASON, _reason);
-        execState.put(TASK_START_MS, Long.toString(_taskStartMs));
+        execState.put(TASK_START_MS, _taskStartMs);
         execState.put(MAXIMUM_CONCURRENT_INTER_BROKER_PARTITION_MOVEMENTS_PER_BROKER,
                       _executionConcurrencySummary.getMaxExecutionConcurrency(ConcurrencyType.INTER_BROKER_REPLICA));
         execState.put(MINIMUM_CONCURRENT_INTER_BROKER_PARTITION_MOVEMENTS_PER_BROKER,
@@ -458,7 +458,7 @@ public final class ExecutorState {
         intraBrokerPartitionMovementStats = _executionTasksSummary.taskStat().get(INTRA_BROKER_REPLICA_ACTION);
         populateUuidFieldInJsonStructure(execState, _uuid);
         execState.put(TRIGGERED_TASK_REASON, _reason);
-        execState.put(TASK_START_MS, Long.toString(_taskStartMs));
+        execState.put(TASK_START_MS, _taskStartMs);
         execState.put(MAXIMUM_CONCURRENT_INTRA_BROKER_PARTITION_MOVEMENTS_PER_BROKER,
                       _executionConcurrencySummary.getMaxExecutionConcurrency(ConcurrencyType.INTRA_BROKER_REPLICA));
         execState.put(MINIMUM_CONCURRENT_INTRA_BROKER_PARTITION_MOVEMENTS_PER_BROKER,
@@ -486,7 +486,7 @@ public final class ExecutorState {
         intraBrokerPartitionMovementStats = _executionTasksSummary.taskStat().get(INTRA_BROKER_REPLICA_ACTION);
         populateUuidFieldInJsonStructure(execState, _uuid);
         execState.put(TRIGGERED_TASK_REASON, _reason);
-        execState.put(TASK_START_MS, Long.toString(_taskStartMs));
+        execState.put(TASK_START_MS, _taskStartMs);
         execState.put(MAXIMUM_CONCURRENT_INTER_BROKER_PARTITION_MOVEMENTS_PER_BROKER,
                       _executionConcurrencySummary.getMaxExecutionConcurrency(ConcurrencyType.INTER_BROKER_REPLICA));
         execState.put(MAXIMUM_CONCURRENT_INTRA_BROKER_PARTITION_MOVEMENTS_PER_BROKER,
